@@ -22,8 +22,8 @@ namespace AonikenRestAPI.Controllers
         {
             try
             {
-                await PostAuthentication.authenticateUser(HttpContext.Request.Headers);
-                await PostValidations.validateStatusForGetPosts(status);
+                await PostAuthentication.authenticateUser(HttpContext.Request.Headers); // Me está faltando verificar si el usuario tiene un tipo apto para operar los posts
+                await PostValidations.validateStatusForGetPosts(status);                
                 var response = await PostHelper.getPostsByStatus(status);
                 return Ok(response);
             }
@@ -39,14 +39,19 @@ namespace AonikenRestAPI.Controllers
 
         [HttpPost]
         [Route("addPost")]
-        public async Task<IActionResult> Post([FromBody] JObject obj)
+        public async Task<IActionResult> Post([FromBody] JObject obj) 
         {
             try
             {
+                await PostAuthentication.authenticateUser(HttpContext.Request.Headers);
                 Post? post = obj.ToObject<Post>();
                 PostValidations.validateStatusExistsNotAny(post.Status);
                 var response = await PostHelper.addPost(post);
                 return Ok(response);
+            }
+            catch (AuthenticationFailedException authEx)
+            {
+                return BadRequest($"Could not authenticate user: {authEx.Message}");
             }
             catch (Exception ex)
             {
@@ -54,7 +59,6 @@ namespace AonikenRestAPI.Controllers
             }
 
         }
-
 
         [HttpPut]
         [Route("updatePost")]
@@ -64,9 +68,14 @@ namespace AonikenRestAPI.Controllers
             Post post = obj.ToObject<Post>();
             try
             {
+                await PostAuthentication.authenticateUser(HttpContext.Request.Headers);
                 await PostValidations.validatePostForStatusUpdate(post.PostID, post.Status);
                 var response = await PostHelper.updatePost(post);
                 return Ok(response);
+            }
+            catch (AuthenticationFailedException authEx)
+            {
+                return BadRequest($"Could not authenticate user: {authEx.Message}");
             }
             catch (Exception ex)
             {
@@ -80,9 +89,14 @@ namespace AonikenRestAPI.Controllers
         {
             try
             {
+                await PostAuthentication.authenticateUser(HttpContext.Request.Headers);
                 await PostValidations.validatePostForDelete(id);
                 await PostHelper.deletePost(id);
                 return Ok("Post deleted successfully");
+            }
+            catch (AuthenticationFailedException authEx)
+            {
+                return BadRequest($"Could not authenticate user: {authEx.Message}");
             }
             catch (Exception ex)
             {

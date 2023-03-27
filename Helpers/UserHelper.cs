@@ -27,9 +27,9 @@ namespace AonikenRestAPI.Helpers
             return response;
         }
 
-        internal static async Task<ResponseDTO<User>> deleteUserByUsername(string username)
+        internal static async Task<ResponseDTO<string>> deleteUserByUsername(string username)
         {
-            ResponseDTO<User> response;
+            ResponseDTO<string> response;
             string query = QueryHelper.queryDeleteUserByUsername(username);
             using (SqlCommand cmd = await DBConnection.getConnectedSqlCommand(query))
             {
@@ -40,7 +40,7 @@ namespace AonikenRestAPI.Helpers
                 bool isSuccess = result > 0;
                 responseMsg = (isSuccess) ? "Successfully deleted user" : "Could not delete user";
                 responseCode = (isSuccess) ? HttpStatusCode.OK : HttpStatusCode.BadRequest;
-                response = new(null, responseMsg, responseCode); //CAMBIAR
+                response = new($"Deleted user with username: {username}", responseMsg, responseCode);    
             }
             return response;
         }
