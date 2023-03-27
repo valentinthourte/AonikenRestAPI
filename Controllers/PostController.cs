@@ -18,7 +18,7 @@ namespace AonikenRestAPI.Controllers
 
         [HttpGet]
         [Route("getPostsBystatus/{status}")]
-        public async Task<ActionResult<IEnumerable<Post>>> Get(int status)
+        public async Task<ActionResult<IEnumerable<Post>>> Get(int status) //Me faltó agregar el get por ID
         {
             try
             {
